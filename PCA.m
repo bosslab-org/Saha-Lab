@@ -1,4 +1,4 @@
-function PCA(data, Colors, Odorants, smooth, ptitle, time, stim_on, bps, line_mult)
+function PCA(data, Colors, Odorants, smooth, PCA_title, time, stim_on, bps, line_mult)
 
 [~,scores,~,~,var_exp] = pca(data);
 my_filter = designfilt('lowpassiir','FilterOrder',smooth,'HalfPowerFrequency',0.15,'DesignMethod','butter'); % design custom filter
@@ -24,9 +24,8 @@ for cycle_odors = 1:numel(Odorants)
         end
     end   
     PCA_handle(cycle_odors) = plot3(scores_norm(:,1,cycle_odors),scores_norm(:,2,cycle_odors),scores_norm(:,3,cycle_odors),'Color',[Colors(cycle_odors,:),0.85],'Linewidth', 2.5);
-    legend(PCA_handle,Odorants','location','eastoutside','FontSize',16,'FontWeight','Bold');
 end
-title(static_axes,ptitle,'FontSize',20,'FontWeight','Bold');
+title(static_axes,PCA_title,'FontSize',20,'FontWeight','Bold');
 
 lims = [min(scores_norm(:,1,:),[],'all') max(scores_norm(:,1,:),[],'all'); min(scores_norm(:,2,:),[],'all') max(scores_norm(:,2,:),[],'all'); min(scores_norm(:,3,:),[],'all') max(scores_norm(:,3,:),[],'all')]; 
 xlim(static_axes,lims(1,:));
@@ -35,6 +34,8 @@ zlim(static_axes,lims(3,:));
 xlabel(static_axes,['PC1 (' num2str(round(var_exp(1)*100)/100) '%)'],'FontName','Arial','FontSize',18,'FontWeight','Bold');
 ylabel(static_axes,['PC2 (' num2str(round(var_exp(2)*100)/100) '%)'],'FontName','Arial','FontSize',18,'FontWeight','Bold');
 zlabel(static_axes,['PC3 (' num2str(round(var_exp(3)*100)/100) '%)'],'FontName','Arial','FontSize',18,'FontWeight','Bold');
+
 num_files = annotation(static_fig,'textbox', [0.2, 0.9, 0, 0], 'String', ['n = ' num2str(size(scores,2))],'Units','normalized','Color','k','FontSize',14,'FontWeight','Bold','FitBoxToText','on','HorizontalAlignment','center');
 
+legend(PCA_handle,Odorants,'location','eastoutside','FontSize',16,'FontWeight','Bold');
 return
