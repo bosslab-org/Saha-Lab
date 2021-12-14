@@ -4,21 +4,21 @@ filepath = '/Users/Xander/Documents/MATLAB/Neural_Recordings';
 master_file_path = 'Master_files';
 filepath2 = 'RHD_files';
 filepath3 = 'Odors';
-date = '08_20_2021';
+date = '04_15_2021';
 Position = '1';
 
-master_data_filt = 'O_RMS_Data.mat';
+master_data_filt = 'Odor_RMS_Master.mat';
 write_path = 'MAT_files';
 
-tr_time = [-5 14];    % trim time relative to stimulus onset
-bin_size = 50;        % bin size in milliseconds
-trial = 5;
+tr_time = [-2 8];    % trim time relative to stimulus onset
+bin_size = 50;       % bin size in milliseconds
+trial = 2;
 %%%%%%%%%%%%%%%%Adjust variables above this line
 trial_selection = zeros(5,4);                   % pre-allocate 5x4 matrix of zeros
-trial_selection(2,:) = [5 9 19 400000];         % 19 second trial, 20 second recording (1 sec. pre-buffer + 19 sec. recording + 1 sec. post-buffer)
+trial_selection(1,:) = [5 9 19 400000];         % 19 second trial, 20 second recording (1 sec. pre-buffer + 19 sec. recording + 1 sec. post-buffer)
+trial_selection(2,:) = [10 14 33 680000];       % 33 second trial, 36 second recording
 trial_selection(3,:) = [10 14 36 740000];       % 36 second trial, 37 second recording
-trial_selection(4,:) = [10 14 33 680000];       % 33 second trial, 36 second recording
-trial_selection(5,:) = [15 19 40 820000];       % 40 second trial, 43 second recording (1 sec. pre-buffer + 41 sec. recording + 1 sec. post-buffer)  
+trial_selection(4,:) = [15 19 40 820000];       % 40 second trial, 43 second recording (1 sec. pre-buffer + 41 sec. recording + 1 sec. post-buffer)  
 trial_selection = trial_selection(trial,:);
 
 trim_time = abs(tr_time(1))+tr_time(2);        
@@ -40,7 +40,7 @@ for cycle_odors = 1:length(files)
     trials = {trials.name};
     trial_idx = 1:length(trials);
     fprintf(['Reading ' Odorant{cycle_odors} '...']); fprintf(1, '\n');
-    data_filt_bin = [];
+    RMS_data_filt = [];
     
 %%%%%%%%%%%%%%%%Above is custom code added to Intan read_file%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%Below is read_file code provided by Intan%%%%%%%%%%%%%%%%
@@ -259,14 +259,12 @@ for cycle_odors = 1:length(files)
             tetrode_channels = ch_per_tetrode*(cycle_tetrodes-1)+1:ch_per_tetrode*cycle_tetrodes;
             for cycle_channels=1:ch_per_tetrode
                 if data_file_main_version_number < 3
-                   data(cycle_tetrodes,cycle_channels,cycle_trials,:) =  notch_filter(amplifier_data(channels_idx(tetrode_channels(cycle_channels)),(sample_rate+1:trimmed_trial_length)), sample_rate, notch_filter_frequency, 10);
+                   data_filt(cycle_tetrodes,cycle_channels,cycle_trials,:) =  filtfilt(b,a,notch_filter(amplifier_data(channels_idx(tetrode_channels(cycle_channels)),(sample_rate+1:trimmed_trial_length)), sample_rate, notch_filter_frequency, 10));
                 else
-                   data(cycle_tetrodes,cycle_channels,cycle_trials,:) =  amplifier_data(channels_idx(tetrode_channels(cycle_channels)),(sample_rate+1:trimmed_trial_length));  
-                end
-                data_filt(cycle_tetrodes,cycle_channels,cycle_trials,:) = filtfilt(b,a,squeeze(data(cycle_tetrodes,cycle_channels,cycle_trials,:)));
-                data_filt_bin(cycle_tetrodes,cycle_channels,cycle_trials,:) = rms(reshape(data_filt(cycle_tetrodes,cycle_channels,cycle_trials,(stim_on+tr_time(1))*sample_rate+1:(stim_on+tr_time(2))*sample_rate),samples_per_bin,num_bins));                
-                
-                Date_temp{cycle_tetrodes,1} = date_temp;
+                   data_filt(cycle_tetrodes,cycle_channels,cycle_trials,:) =  filtfilt(b,a,amplifier_data(channels_idx(tetrode_channels(cycle_channels)),(sample_rate+1:trimmed_trial_length)));  
+                end                
+                RMS_data_filt(cycle_tetrodes,cycle_channels,cycle_trials,:) = rms(reshape(data_filt(cycle_tetrodes,cycle_channels,cycle_trials,(stim_on+tr_time(1))*sample_rate+1:(stim_on+tr_time(2))*sample_rate),size(((stim_on+tr_time(1))*sample_rate+1:(stim_on+tr_time(2))*sample_rate),2)/(bins_per_sec*trim_time),(bins_per_sec*trim_time)),1);
+                Date_temp{cycle_tetrodes,1} = [date_temp '_Pos_' num2str(Position) '_Tet_' num2str(cycle_tetrodes)];
             end
         end      
         fprintf('Finished file %.0f of %.0f. ', cycle_trials, length(trials))
@@ -278,8 +276,7 @@ for cycle_odors = 1:length(files)
     
 %%%%%%%%%%%%%%Save data within odor experiment folder       
     var_name_data_filt = [Odor '_data_filt'];
-    eval([var_name_data_filt '= data_filt;'])
-    
+    eval([var_name_data_filt '= data_filt;'])  
     if ~exist([filepath '/' write_path '/' filepath3 '/' date '/Position_' Position])
         mkdir([filepath '/' write_path '/' filepath3 '/' date '/Position_' Position]);
     end
@@ -288,41 +285,39 @@ for cycle_odors = 1:length(files)
         mkdir([filepath '/' master_file_path]);
     end
     fprintf(1, '\nSaving %s data... \n', Odor);    
-    save([filepath '/' write_path '/' filepath3 '/' date '/Position_' Position '/' Odor], [Odor '_data_filt'], 'stim_on','stim_off','stim_on_trim','stim_off_trim','total_time','trim_time','sample_rate');
+    save([filepath '/' write_path '/' filepath3 '/' date '/Position_' Position '/' Odor], [Odor '_data_filt'], 'stim_on','stim_off','total_time','sample_rate');
 
 %%%%%%%%%%%%%Save data to day-wise file
-    var_name_data_filt_bin = [Odor '_data_filt'];
-    eval([var_name_data_filt_bin '= data_filt_bin;'])
+    var_name_data_filt_rms = [Odor '_RMS_data_filt'];
+    eval([var_name_data_filt_rms '= RMS_data_filt;'])
     if cycle_odors == 1
         fprintf(1, 'Creating new RMS-based experiment file... \n');
-        save([filepath '/' write_path '/' filepath3 '/' date '/Position_' Position '/Position_' Position], [Odor '_data_filt'], 'stim_on','stim_off','stim_on_trim','stim_off_trim','total_time','trim_time','sample_rate','bin_size');
+        save([filepath '/' write_path '/' filepath3 '/' date '/Position_' Position '/Position_' Position], [Odor '_RMS_data_filt'],'stim_on_trim','stim_off_trim','trim_time','bin_size');
     else
         fprintf(1, 'Appending %s RMS data to experiment file... \n', Odor);
-        save([filepath '/' write_path '/' filepath3 '/' date '/Position_' Position '/Position_' Position], [Odor '_data_filt'],'-append');
+        save([filepath '/' write_path '/' filepath3 '/' date '/Position_' Position '/Position_' Position], [Odor '_RMS_data_filt'],'-append');
     end
     
-%%%%%%%%%%%%%Add data to master matrix
+%%%%%%%%%%%%%Add filtered data to master matrix
     if ~(exist([filepath '/' master_file_path '/' master_data_filt]))
         fprintf(1, 'Creating new RMS-based master matrix... \n\n');
         Date = Date_temp;
-        save([filepath '/' master_file_path '/' master_data_filt], [Odor '_data_filt'], 'Date','stim_on','stim_off','stim_on_trim','stim_off_trim','total_time','trim_time','sample_rate','bin_size','-v7.3');
-    elseif isempty(who('-file', [filepath '/' master_file_path '/' master_data_filt], [Odor '_data']))
+        save([filepath '/' master_file_path '/' master_data_filt], [Odor '_RMS_data_filt'], 'Date','stim_on_trim','stim_off_trim','trim_time','bin_size','-v7.3');
+    elseif isempty(who('-file', [filepath '/' master_file_path '/' master_data_filt], [Odor '_RMS_data_filt']))
         fprintf(1, 'Adding %s RMS data to master matrix... \n\n', Odor);
-        save([filepath '/' master_file_path '/' master_data_filt], [Odor '_data_filt'],'-append');
-    elseif ~isempty(who('-file', [filepath '/' master_file_path '/' master_data_filt], [Odor '_data']))
+        save([filepath '/' master_file_path '/' master_data_filt], [Odor '_RMS_data_filt'],'-append');
+    elseif ~isempty(who('-file', [filepath '/' master_file_path '/' master_data_filt], [Odor '_RMS_data_filt']))
         fprintf(1, 'Appending %s RMS data to master matrix... \n\n', Odor);
-
-%%%%%%%%%%%%%%Add filtered data to master matrix
-        load([filepath '/' master_file_path '/' master_data_filt],'Date',[Odor '_data_filt']);
+        load([filepath '/' master_file_path '/' master_data_filt],'Date',[Odor '_RMS_data_filt']);
         if cycle_odors == 1
             Date = vertcat(Date, Date_temp);
-            data_filt_bin = cat(1,eval([Odor '_data_filt']),data_filt_bin);
-            eval([var_name_data_filt_bin '= data_filt_bin;'])
-            save([filepath '/' master_file_path '/' master_data_filt],[Odor '_data_filt'], 'Date','-append');
+            RMS_data_filt = cat(1,eval([Odor '_RMS_data_filt']),RMS_data_filt);
+            eval([var_name_data_filt_rms '= RMS_data_filt;'])
+            save([filepath '/' master_file_path '/' master_data_filt],[Odor '_RMS_data_filt'], 'Date','-append');
         else
-            data_filt_bin = cat(1,eval([Odor '_data_filt']),data_filt_bin);
-            eval([var_name_data_filt_bin '= data_filt_bin;'])
-            save([filepath '/' master_file_path '/' master_data_filt], [Odor '_data_filt'],'-append');
+            RMS_data_filt = cat(1,eval([Odor '_RMS_data_filt']),RMS_data_filt);
+            eval([var_name_data_filt_rms '= RMS_data_filt;'])
+            save([filepath '/' master_file_path '/' master_data_filt], [Odor '_RMS_data_filt'],'-append');
         end
     end
 fprintf(1, '%d%% complete \n\n',round((cycle_odors/length(files))*100));
