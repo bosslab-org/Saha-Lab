@@ -1,2 +1,2 @@
 # Saha-Lab
-Matlab Code for Neural Data Analysis
+Neural Data Analysis
