@@ -1,9 +1,9 @@
-function Confusion(data,Class,Confusion_title)
+function static_fig = Confusion(data,Class,Confusion_title)
 
 % figure('Units','normalized','Position',[0.5 0.5 0.5 0.39]);
 % conf_chart = confusionchart(y,yhat);
 
-figure('Position', [50 50 800 700]);
+static_fig = figure('Position', [50 50 800 700]);
 imagesc(data');
 
 xticks([1:numel(Class)]);
