@@ -43,6 +43,7 @@ if input_files == 'm'
         if file_type == 'r'
             writepath = [writepath '/RMS_' path];
             filename = 'R2000_S2000_b50_CC';
+            file_name = filename;
             if daywise_comp == 'y'
                 select_day = 'Select day (1, 2, 3, 4): ';
                 select_day = input(select_day,'s');
@@ -367,7 +368,7 @@ save_figs = 'Save all figures (y / n)? ';
 save_figs = input(save_figs,'s');
 
 if save_figs == 'y'   
-    writepath = [writepath '/' filename '/' path '/' num2str(time(1)) 'to' num2str(time(2))];
+    writepath = [writepath '/' file_name '/' path '/' num2str(time(1)) 'to' num2str(time(2))];
     if ~exist(writepath)
         mkdir(writepath)
     end
