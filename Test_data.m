@@ -1,13 +1,15 @@
-function [HD_trial_pred_counts_temp, HD_bin_pred_counts] = Test_data(test_data,train_data_mean, files, pred_counts_zeros, cycle_classes)
+function [trial_pred_counts, bin_pred_counts] = Test_data(test_data,train_data_mean,pred_counts_zeros,norm_type)
 
-pred_data = squeeze(vecnorm(test_data(cycle_classes,:,:)-permute(train_data_mean,[1 3 2]),2,3))';    % compute L2 norm for all time bins
-
-[~,HD_bin_pred_class] = min(pred_data,[],2);
-
-HD_bin_pred_counts_temp = accumarray(HD_bin_pred_class,1)';
-if numel(HD_bin_pred_counts_temp) ~= numel(files)
-    HD_bin_pred_counts_temp(numel(pred_counts_zeros)) = 0;     % pad vector with 0 events if necessary
+if norm_type == 1
+    pred_data = squeeze(vecnorm(test_data-permute(train_data_mean,[3 1 2]),1,2));    % compute 1-norm for all time bins
+elseif norm_type == 2
+    pred_data = squeeze(vecnorm(test_data-permute(train_data_mean,[3 1 2]),2,2));    % compute 2-norm for all time bins
 end
-HD_bin_pred_counts = HD_bin_pred_counts_temp;
+[~,bin_pred_class] = min(pred_data,[],2);
 
-HD_trial_pred_counts_temp = mode(HD_bin_pred_class);
+bin_pred_counts_temp = accumarray(bin_pred_class,1)';
+bin_pred_counts = cat(2,bin_pred_counts_temp,zeros(1,size(pred_counts_zeros,2)-size(bin_pred_counts_temp,2)));
+
+trial_pred_counts = mode(bin_pred_class);
+
+return
