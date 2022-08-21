@@ -1,4 +1,4 @@
-function static_fig = PCA(data, Colors, Odorants, smooth, PCA_title, time, bps, line_mult)
+function static_fig = PCA(data, Colors, Odorants, smooth, PCA_title, time, new_bin_size, bps, line_mult)
 
 data_norm = reshape(permute(mean(data,3),[2,4,1,3]),size(data,2)*size(data,4),size(data,1));
 [~,scores,~,~,var_exp] = pca(data_norm);
@@ -14,14 +14,30 @@ hold on; grid on; box off; view(42,5);
 
 plot3(0,0,0,'.','Color',[.5,.5,.5,.5],'MarkerSize',40);
 for cycle_classes = 1:numel(Odorants)
-    for cycle_points = 0:line_mult:size(scores_norm,2)
+    for cycle_points = 0:line_mult/new_bin_size:size(scores_norm,2)
         if cycle_points ~= 0
-            plot3([0,scores_norm(1,cycle_points,cycle_classes)], [0,scores_norm(2,cycle_points,cycle_classes)],[0,scores_norm(3,cycle_points,cycle_classes)],'Color',[Colors(cycle_classes,:),0.2],'Linewidth', .5);
+            plot3([0,scores_norm(1,cycle_points,cycle_classes)], [0,scores_norm(2,cycle_points,cycle_classes)],[0,scores_norm(3,cycle_points,cycle_classes)],...
+                'Color',[Colors(cycle_classes,:),0.2],'Linewidth', .5);
+            
             switch cycle_points % works for 50 msec time bins, need to update for compatability with other bin sizes
-                case bps*.1, text(scores_norm(1,cycle_points,cycle_classes), scores_norm(2,cycle_points,cycle_classes), scores_norm(3,cycle_points,cycle_classes), [num2str(time(1) + .5)],'FontSize',14,'Color','k','BackgroundColor',[Colors(cycle_classes,:),0.25])
-                case bps*.2, text(scores_norm(1,cycle_points,cycle_classes), scores_norm(2,cycle_points,cycle_classes), scores_norm(3,cycle_points,cycle_classes), [num2str(time(1) + 1)],'FontSize',14,'Color','k','BackgroundColor',[Colors(cycle_classes,:),0.25])
-                case bps*.4, text(scores_norm(1,cycle_points,cycle_classes), scores_norm(2,cycle_points,cycle_classes), scores_norm(3,cycle_points,cycle_classes), [num2str(time(1) + 2)],'FontSize',14,'Color','k','BackgroundColor',[Colors(cycle_classes,:),0.25])
-                case bps*.8, text(scores_norm(1,cycle_points,cycle_classes), scores_norm(2,cycle_points,cycle_classes), scores_norm(3,cycle_points,cycle_classes), [num2str(time(1) + 4)],'FontSize',14,'Color','k','BackgroundColor',[Colors(cycle_classes,:),0.25])
+                case bps*.25, text(scores_norm(1,cycle_points,cycle_classes), scores_norm(2,cycle_points,cycle_classes), scores_norm(3,cycle_points,cycle_classes),...
+                        num2str(time(1) + .25),...
+                        'FontSize',14,'Color',Colors(cycle_classes,:)) %,'BackgroundColor',[Colors(cycle_classes,:),0.25])                
+                case bps*.5, text(scores_norm(1,cycle_points,cycle_classes), scores_norm(2,cycle_points,cycle_classes), scores_norm(3,cycle_points,cycle_classes),...
+                        num2str(time(1) + .5),...
+                        'FontSize',14,'Color',Colors(cycle_classes,:)) %,'BackgroundColor',[Colors(cycle_classes,:),0.5])   
+                case bps*1, text(scores_norm(1,cycle_points,cycle_classes), scores_norm(2,cycle_points,cycle_classes), scores_norm(3,cycle_points,cycle_classes),...
+                        num2str(time(1) + 1),...
+                        'FontSize',14,'Color',Colors(cycle_classes,:)) %,'BackgroundColor',[Colors(cycle_classes,:),0.25])                
+                case bps*1.5, text(scores_norm(1,cycle_points,cycle_classes), scores_norm(2,cycle_points,cycle_classes), scores_norm(3,cycle_points,cycle_classes),...
+                        num2str(time(1) + 1.5),...
+                        'FontSize',14,'Color',Colors(cycle_classes,:)) %,'BackgroundColor',[Colors(cycle_classes,:),0.5])   
+                case bps*2, text(scores_norm(1,cycle_points,cycle_classes), scores_norm(2,cycle_points,cycle_classes), scores_norm(3,cycle_points,cycle_classes),...
+                        num2str(time(1) + 2),...
+                        'FontSize',14,'Color',Colors(cycle_classes,:)) %,'BackgroundColor',[Colors(cycle_classes,:),0.25])                
+                case bps*4, text(scores_norm(1,cycle_points,cycle_classes), scores_norm(2,cycle_points,cycle_classes), scores_norm(3,cycle_points,cycle_classes),...
+                        num2str(time(1) + 4),...
+                        'FontSize',14,'Color',Colors(cycle_classes,:)) %,'BackgroundColor',[Colors(cycle_classes,:),0.5])   
             end
         end
     end
@@ -37,5 +53,5 @@ xlabel(static_axes,['PC1 (' num2str(round(var_exp(1)*100)/100) '%)'],'FontName',
 ylabel(static_axes,['PC2 (' num2str(round(var_exp(2)*100)/100) '%)'],'FontName','Arial','FontSize',18,'FontWeight','Bold');
 zlabel(static_axes,['PC3 (' num2str(round(var_exp(3)*100)/100) '%)'],'FontName','Arial','FontSize',18,'FontWeight','Bold');
 annotation(static_fig,'textbox', [0.2, 0.9, 0, 0], 'String', ['n = ' num2str(size(data,1))],'Units','normalized','Color','k','FontSize',14,'FontWeight','Bold','FitBoxToText','on','HorizontalAlignment','center');
-% legend(PCA_handle,Odorants,'location','eastoutside','FontSize',16,'FontWeight','Bold');
+legend(PCA_handle,Odorants,'location','eastoutside','FontSize',16,'FontWeight','Bold');
 return
