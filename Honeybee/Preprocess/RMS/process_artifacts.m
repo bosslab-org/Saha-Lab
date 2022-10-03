@@ -1,4 +1,6 @@
-function [data, SS_PSVT_fig] = process_artifacts(data, tref, thresh, stim_on, stim_off, sample_rate, gen_plot)
+function data = process_artifacts(data, tref, thresh, stim_on, stim_off, sample_rate, gen_plot)
+
+%findpeaks function with 'MinPeakDistance' is extremely slow
 [pos_pks,pos_locs] = findpeaks(data,1:size(data,1),'MinPeakDistance',tref);
 pos_artifacts = pos_locs(pos_pks > thresh*std(data));
 [neg_pks,neg_locs] = findpeaks(-data,1:size(data,1),'MinPeakDistance',tref);
@@ -9,7 +11,7 @@ if gen_plot == 1
     ylim_min = min(data);
     ylim_max = max(data);
 
-    SS_PSVT_fig = figure('Position', [0 0 1000 750]);
+    figure('Position', [0 0 1000 750]);
     subplot(2,1,1)
     plot(1:size(data,1), data,'-*','MarkerIndices', artifacts,'MarkerSize', 2, 'MarkerFaceColor', 'red','MarkerEdgeColor','red')
 
@@ -20,8 +22,6 @@ if gen_plot == 1
     patch(patch_x,patch_y,'k', 'FaceAlpha', 0.1, 'EdgeAlpha', 0.0);
     xticks(0:sample_rate:size(data,1))
     xticklabels(0:(size(data,1)/sample_rate))
-    % xlim([21.45*sample_rate 21.65*sample_rate])
-
     xlim([0 size(data,1)])
     ylim([ylim_min ylim_max])
 end
@@ -42,8 +42,6 @@ if gen_plot == 1
     patch(patch_x,patch_y,'k', 'FaceAlpha', 0.1, 'EdgeAlpha', 0.0);
     xticks(0:sample_rate:size(data,1))
     xticklabels(0:(size(data,1)/sample_rate))
-    % xlim([21.45*sample_rate 21.65*sample_rate])
-
     xlim([0 size(data,1)])
     ylim([ylim_min ylim_max])
 end

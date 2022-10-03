@@ -1,4 +1,4 @@
-function [data_filt, exp_pars] = read_intan_tetrodes(stimulus, filepath, readpath, exp_path)
+function [data_filt, data_processed, exp_pars] = read_intan_tetrodes(stimulus, filepath, readpath, exp_path)
 
 write_path = 'MAT_files';
 fcutlow = 300;                  % low cut off frequency in Hz
@@ -231,7 +231,7 @@ for cycle_trials = 1:length(trials)
             else
                 data_filt(cycle_tetrodes,cycle_channels,cycle_trials,:) =  filtfilt(b,a,amplifier_data(channels_idx(tetrode_channels(cycle_channels)),(1:trial_end*sample_rate)));  
             end
-            [data_processed(cycle_tetrodes,cycle_channels,cycle_trials,:), ~] = process_artifacts(squeeze(data_filt(cycle_tetrodes,cycle_channels,cycle_trials,:)),...
+            data_processed(cycle_tetrodes,cycle_channels,cycle_trials,:) = process_artifacts(squeeze(data_filt(cycle_tetrodes,cycle_channels,cycle_trials,:)),...
                 sample_rate/1000, 8, stim_on_temp(cycle_trials), stim_off_temp(cycle_trials), sample_rate, 0);
         end
     end      
@@ -251,34 +251,22 @@ stim_off = floor(stim_off_temp(1));
 total_time = size(data_filt,4)/sample_rate;
 exp_pars = [stim_on, stim_off, sample_rate];
 
-%%%%%%%%%%%%%%Save data_filt%%%%%%%%%%%%%%       
+%%%%%%%%%%%%%%Save data_filt and data_processed%%%%%%%%%%%%%%       
 var_name_data_filt = [stim '_data_filt'];
-eval([var_name_data_filt '= data_filt;'])  
+eval([var_name_data_filt '= data_filt;'])
+var_name_data_processed = [stim '_data_processed'];
+eval([var_name_data_processed '= data_processed;'])
+
 if ~exist([filepath '/' write_path '/' exp_path],'dir')
     mkdir([filepath '/' write_path '/' exp_path]);
 end
 
 % if ~exist([filepath '/' write_path '/' exp_path '/' stim '.mat'],'file')
     fprintf(1, 'Saving %s data... \n', stim);    
-    save([filepath '/' write_path '/' exp_path '/' stim], [stim '_data_filt'], 'stim_on','stim_off','total_time','sample_rate');
+    save([filepath '/' write_path '/' exp_path '/' stim], [stim '_data_filt'], [stim '_data_processed'], 'stim_on','stim_off','total_time','sample_rate');
     fprintf(['Finished ' exp_path ': ' stim '\n\n']);
 % else
 %     fprintf('data_filt previously saved. MAT file not overwritten.\n')
-% end
-
-%%%%%%%%%%%%%%Save data_processed%%%%%%%%%%%%%%       
-var_name_data_filt = [stim '_data_processed'];
-eval([var_name_data_filt '= data_processed;'])  
-if ~exist([filepath '/' write_path '/Processed/' exp_path],'dir')
-    mkdir([filepath '/' write_path '/Processed/' exp_path]);
-end
-
-% if ~exist([filepath '/' write_path '/Processed/' exp_path '/' stim '.mat'],'file')
-    fprintf(1, 'Saving %s data... \n', stim);    
-    save([filepath '/' write_path '/Processed/' exp_path '/' stim], [stim '_data_filt'], 'stim_on','stim_off','total_time','sample_rate');
-    fprintf(['Finished ' exp_path ': ' stim '\n\n']);
-% else
-%     fprintf('data_processed previously saved. MAT file not overwritten.\n')
 % end
 return
 

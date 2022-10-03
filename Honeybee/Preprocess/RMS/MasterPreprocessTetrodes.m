@@ -18,21 +18,22 @@ if exist('day','var')
             exp_path = [day '/' bees(cycle_bees).name '/' positions(cycle_positions).name];
             stimuli = dir([filepath '/' readpath '/' exp_path]);
             stimuli = stimuli(~ismember({stimuli.name},{'.','..','.DS_Store'}));
-            for cycle_stimuli = 8 %1:numel(stimuli)
+            for cycle_stimuli = 1:numel(stimuli)
                 stimulus = stimuli(cycle_stimuli).name;
 
                 if exist([filepath '/MAT_files/' exp_path '/' stimulus(1:end-3) '.mat'],'file')
                     load([filepath '/MAT_files/' exp_path '/' stimulus(1:end-3) '.mat']);
-                    data = eval([stimulus(1:end-3) '_data_filt']);
+                    data_filt = eval([stimulus(1:end-3) '_data_filt']);
+                    data_processed = eval([stimulus(1:end-3) '_data_processed']);
                     exp_pars = [stim_on, stim_off, sample_rate];
                 else
-                    [data, exp_pars] = read_intan_tetrodes(stimulus, filepath, readpath, exp_path);
+                    [data_filt, data_processed, exp_pars] = read_intan_tetrodes(stimulus, filepath, readpath, exp_path);
                 end
                 
                 % Comment in to plot test PSTH
 %                 PSTH_fig = test_PSTH(data, exp_pars, 3); pause(10); close(PSTH_fig);
 
-                rms_construct_tetrodes(stimulus, data, exp_pars, rms_window, smooth_window, bin_size, time, filepath, exp_path)
+                rms_construct_tetrodes(stimulus, data_filt, data_processed, exp_pars, rms_window, smooth_window, bin_size, time, filepath, exp_path)
             end
         end
     end
@@ -40,7 +41,7 @@ if exist('day','var')
 elseif ~exist('day','var')
     experiments = dir([filepath '/' readpath]);
     experiments = experiments(~ismember({experiments.name},{'.','..','.DS_Store'}));
-    for cycle_dates = 1:numel(experiments)
+    for cycle_dates = 2:5 %1:numel(experiments)
         bees = dir([experiments(cycle_dates).folder '/' experiments(cycle_dates).name]);
         bees = bees(~ismember({bees.name},{'.','..','.DS_Store'}));
         for cycle_bees = 1:numel(bees)
@@ -56,13 +57,14 @@ elseif ~exist('day','var')
 
                     if exist([filepath '/MAT_files/' exp_path '/' stimulus(1:end-3) '.mat'],'file')
                         load([filepath '/MAT_files/' exp_path '/' stimulus(1:end-3) '.mat']);
-                        data = eval([stimulus(1:end-3) '_data_filt']);
+                        data_filt = eval([stimulus(1:end-3) '_data_filt']);
+                        data_processed = eval([stimulus(1:end-3) '_data_processed']);
                         exp_pars = [stim_on, stim_off, sample_rate];
                     else
-                        [data, exp_pars] = read_intan_tetrodes(stimulus, filepath, readpath, exp_path);
+                        [data_filt, data_processed, exp_pars] = read_intan_tetrodes(stimulus, filepath, readpath, exp_path);
                     end
                     
-                    rms_construct_tetrodes(stimulus, data, exp_pars, rms_window, smooth_window, bin_size, time, filepath, exp_path)
+                    rms_construct_tetrodes(stimulus, data_filt, data_processed, exp_pars, rms_window, smooth_window, bin_size, time, filepath, exp_path)
                 end
             end
         end
