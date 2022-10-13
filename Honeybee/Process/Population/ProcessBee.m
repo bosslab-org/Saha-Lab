@@ -2,11 +2,11 @@ clear; clc; close all; tic;
 
 file_type = 'r';        % s (Spike Sorted) or r (RMS)
 save_figs = 'n';        % y or n
-exp_type = '1%';        % 1% or LC (Lung Cancer)
+exp_type = 'LC';        % 1% or LC (Lung Cancer)
 
 time = [0 4];               % time relative to stimulus onset
-new_bin_size = 200;          % new bin size in msecs: mod(size(data_temp,3),new_bin_size) must equal 0
-normtype = 2;               % p-vector norm for class prediction
+new_bin_size = 50;          % new bin size in msecs: mod(size(data_temp,3),new_bin_size) must equal 0
+normtype = 1;               % p-vector norm for class prediction
 
 bin_size = 10;
 PSTH_smooth = 1;            % PSTH smoothing factor
@@ -15,13 +15,13 @@ PCA_line_mult = 200;        % line from origin every x msecs, MUST be set to mul
 conf_res = 20;              % resolution (step size) of confusion matrix
 
 if strcmp(exp_type,'LC') 
-    readpath = '/Users/Xander/Documents/MATLAB/Honeybee/LC';
+    readpath = '/Users/alexanderfarnum/Documents/MATLAB/Honeybee/LC';
     
     % Specify color scheme
     Colors = [242,147,147 ; 189,67,67 ; 237,70,47 ; 165,245,167 ; 57,123,39 ;...
         69,148,39 ; 79,201,251 ; 49,74,251 ; 147,147,147 ; 38,38,38]./255;
 elseif strcmp(exp_type,'1%')
-    readpath = '/Users/Xander/Documents/MATLAB/Honeybee/1%';
+    readpath = '/Users/alexanderfarnum/Documents/MATLAB/Honeybee/1%';
     
     % Specify color scheme
     Colors = [89,190,73 ; 131,195,232 ; 255,60,45 ; 44,46,53 ; 200,206,205 ;...
@@ -38,8 +38,8 @@ if strcmp(file_type,'r')
     filename = 'R500_S500';
     read_filename = [filename '_b' num2str(bin_size) '_' num2str(time(1)) 'to' num2str(time(2))];
     write_filename = [filename '_b' num2str(new_bin_size) '_' num2str(time(1)) 'to' num2str(time(2))];
-    var_ext = '_RMS';
-    train_ext = '_1_RMS';
+    var_ext = '_processed_RMS';
+    train_ext = '_1_processed_RMS';
 elseif strcmp(file_type,'s') 
     filename = 'SS';
     read_filename = [filename '_b' num2str(bin_size)];
@@ -74,21 +74,21 @@ end
 set(0, 'DefaultTextInterpreter', 'none');    % format underscores in title to avoid subscripting
 titles = [num2str(time(1)) ' to ' num2str(time(2)) ' seconds after stimulus onset'];
 
-PCA_master_fig = PCA_Honeybee(data, Colors, stimuli, PCA_smooth, ['PCA (' file_type '): ' titles], time, new_bin_size, bins_per_sec, PCA_line_mult);        
-LDA_master_fig = LDA_Honeybee(data, Colors, stimuli, ['LDA (' file_type '): ' titles]);
+PCA_master_fig = PCA_Bee(data, Colors, stimuli, PCA_smooth, ['PCA (' file_type '): ' titles], time, new_bin_size, bins_per_sec, PCA_line_mult);        
+LDA_master_fig = LDA_Bee(data, Colors, stimuli, ['LDA (' file_type '): ' titles]);
 figs = {PCA_master_fig,LDA_master_fig};
 figs_titles = {'PCA','LDA'};
 
 [loto_bin_preds, loto_trial_preds] = LotoBee(data,normtype);
-Conf_loto_bin = Confusion_Honeybee(loto_bin_preds, stimuli, stimuli, ['LOTO Confusion (' file_type '): ' titles],conf_res,1);
-Conf_loto_trial = Confusion_Honeybee(loto_trial_preds, stimuli, stimuli, ['LOTO Confusion (' file_type '): ' titles],conf_res,1);
+Conf_loto_bin = Confusion_Bee(loto_bin_preds, stimuli, stimuli, ['LOTO Confusion (' file_type '): ' titles],conf_res,1);
+Conf_loto_trial = Confusion_Bee(loto_trial_preds, stimuli, stimuli, ['LOTO Confusion (' file_type '): ' titles],conf_res,1);
 norm_figs = {Conf_loto_bin,Conf_loto_trial};
 norm_figs_titles = {'LOTO_Bin_Conf','LOTO_Trial_Conf'};
 
 if strcmp(exp_type,'LC') 
     [tt_bin_preds, tt_trial_preds, train_stimuli, test_stimuli] = TtBee(data,normtype,files,train_ext);
-    Conf_tt_bin = Confusion_Honeybee(tt_bin_preds, train_stimuli, test_stimuli, ['TT Confusion (' file_type '): ' titles],conf_res,1);
-    Conf_tt_trial = Confusion_Honeybee(tt_trial_preds, train_stimuli, test_stimuli, ['TT Confusion (' file_type '): ' titles],conf_res,1);
+    Conf_tt_bin = Confusion_Bee(tt_bin_preds, train_stimuli, test_stimuli, ['TT Confusion (' file_type '): ' titles],conf_res,1);
+    Conf_tt_trial = Confusion_Bee(tt_trial_preds, train_stimuli, test_stimuli, ['TT Confusion (' file_type '): ' titles],conf_res,1);
     norm_figs = cat(2,norm_figs,{Conf_tt_bin,Conf_tt_trial});
     norm_figs_titles = cat(2,norm_figs_titles, {'TT_Bin_Conf','TT_Trial_Conf'});
 end

@@ -1,14 +1,14 @@
 clear; clc; close all;
-readpath = '/Users/Xander/Documents/MATLAB/Honeybee_1%/Master_files';
+readpath = '/Users/alexanderfarnum/Documents/MATLAB/Honeybee/LC/Master_files';
 
-RMS_window = 50;
-smooth_window = 50;
+RMS_window = 500;
+smooth_window = 500;
 new_bin_size = 50;
 bin_size = 10;
 
 position = 1;
 tetrode = 1;
-time = [0.25 2];
+time = [0 4];
 
 filename = ['R' num2str(RMS_window) '_S' num2str(RMS_window) '_b' num2str(bin_size) '_' num2str(time(1)) 'to' num2str(time(2)) '.mat']; 
 load([readpath '/' filename]);

@@ -5,10 +5,10 @@ trial_preds = zeros(size(data,4),size(data,4)); % zero padded array
 for cycle_trials = 1:size(data,3)
     
 %     Time bin average was used previously
-%     train_data_mean = permute(mean(data(:,:,1:size(data,3) ~= cycle_trials,:),[2,3]),[1 2 4 3]);
+    train_data_mean = permute(mean(data(:,:,1:size(data,3) ~= cycle_trials,:),[2,3]),[1 2 4 3]);
 
 %     No time bin average seems to give far better results
-    train_data_mean = permute(mean(data(:,:,1:size(data,3) ~= cycle_trials,:),3),[1 2 4 3]);
+%     train_data_mean = permute(mean(data(:,:,1:size(data,3) ~= cycle_trials,:),3),[1 2 4 3]);
     
     test_data = permute(data(:,:,cycle_trials,:),[1 2 4 3]);        % testing data
     for cycle_stimuli= 1:size(data,4)
