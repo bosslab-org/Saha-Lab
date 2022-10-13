@@ -231,8 +231,25 @@ for cycle_trials = 1:length(trials)
             else
                 data_filt(cycle_tetrodes,cycle_channels,cycle_trials,:) =  filtfilt(b,a,amplifier_data(channels_idx(tetrode_channels(cycle_channels)),(1:trial_end*sample_rate)));  
             end
+
+% %             Generate artifact removal plots
+%             [data_processed(cycle_tetrodes,cycle_channels,cycle_trials,:), artifact_plot] = process_artifacts(squeeze(data_filt(cycle_tetrodes,cycle_channels,cycle_trials,:)),...
+%                 sample_rate/1000, 15, stim_on_temp(cycle_trials), stim_off_temp(cycle_trials), sample_rate, 1);
+
             data_processed(cycle_tetrodes,cycle_channels,cycle_trials,:) = process_artifacts(squeeze(data_filt(cycle_tetrodes,cycle_channels,cycle_trials,:)),...
-                sample_rate/1000, 8, stim_on_temp(cycle_trials), stim_off_temp(cycle_trials), sample_rate, 0);
+                sample_rate/1000, 15, stim_on_temp(cycle_trials), stim_off_temp(cycle_trials), sample_rate, 0);
+
+
+            if ~exist([filepath '/Artifact_Figures/' exp_path '/' stimulus(1:end-3)],'dir') && exist('artifact_plot','var')
+                mkdir([filepath '/Artifact_Figures/' exp_path '/' stimulus(1:end-3)]);
+                saveas(artifact_plot,[filepath '/Artifact_Figures/' exp_path '/' stimulus(1:end-3) '/C' num2str(cycle_channels) '_t' num2str(cycle_trials) '.png'])
+                close;
+                fprintf([stimulus(1:end-3) ' Channel ' num2str(cycle_channels) ' Trial ' num2str(cycle_trials) ' Artifact Removal Plot Saved\n'])
+            elseif exist([filepath '/Artifact_Figures/' exp_path '/' stimulus(1:end-3)],'dir') && exist('artifact_plot','var')
+                saveas(artifact_plot,[filepath '/Artifact_Figures/' exp_path '/' stimulus(1:end-3) '/C' num2str(cycle_channels) '_t' num2str(cycle_trials) '.png'])
+                close;
+                fprintf([stimulus(1:end-3) ' Channel ' num2str(cycle_channels) ' Trial ' num2str(cycle_trials) ' Artifact Removal Plot Saved\n'])
+            end
         end
     end      
     fprintf('Finished processing trial %.0f of %.0f. ', cycle_trials, length(trials))

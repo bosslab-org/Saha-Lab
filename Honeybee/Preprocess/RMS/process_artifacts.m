@@ -1,4 +1,4 @@
-function data = process_artifacts(data, tref, thresh, stim_on, stim_off, sample_rate, gen_plot)
+function [data, artifact_plot] = process_artifacts(data, tref, thresh, stim_on, stim_off, sample_rate, gen_plot)
 
 %findpeaks function with 'MinPeakDistance' is extremely slow
 [pos_pks,pos_locs] = findpeaks(data,1:size(data,1),'MinPeakDistance',tref);
@@ -11,10 +11,11 @@ if gen_plot == 1
     ylim_min = min(data);
     ylim_max = max(data);
 
-    figure('Position', [0 0 1000 750]);
+    artifact_plot = figure('Position', [0 0 1000 750]);
     subplot(2,1,1)
     plot(1:size(data,1), data,'-*','MarkerIndices', artifacts,'MarkerSize', 2, 'MarkerFaceColor', 'red','MarkerEdgeColor','red')
 
+    title('Artifacts Not Removed')
     yline(thresh*std(data),'--','Color', 'k','LineWidth',.5);
     yline(-thresh*std(data),'--','Color', 'k','LineWidth',.5);
     patch_x = [stim_on stim_on stim_off stim_off];
@@ -32,9 +33,10 @@ for ii = 1:numel(artifacts)
 end
 
 if gen_plot == 1
-    subplot(2,1,2)
+    subplot(2,1,2);
     plot(1:size(data,1), data,'-*','MarkerIndices', artifacts,'MarkerSize', 2, 'MarkerFaceColor', 'red','MarkerEdgeColor','red')
 
+    title('Artifacts Removed')
     yline(thresh*std(data),'--','Color', 'k','LineWidth',.5);
     yline(-thresh*std(data),'--','Color', 'k','LineWidth',.5);
     patch_x = [stim_on stim_on stim_off stim_off];
