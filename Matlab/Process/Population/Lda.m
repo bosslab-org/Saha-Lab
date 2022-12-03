@@ -40,6 +40,26 @@ zlabel(LDA_axes,['LDA3 (' num2str(var_exp(3)) '%)'],'FontSize',18,'FontWeight','
 title(LDA_axes,LDA_title,'FontSize',20,'FontWeight','Bold')
 annotation(LDA_fig,'textbox', [0.2, 0.9, 0, 0], 'String', ['n = ' num2str(size(data,1))],'Units','normalized','Color','k','FontSize',14,'FontWeight','Bold','FitBoxToText','on','HorizontalAlignment','center');
 
-[~, marker] = legend(LDA_handle,Odorants,'location','eastoutside','FontSize',16,'FontWeight','Bold');
-set(findobj(marker,'-property','MarkerSize'),'MarkerSize',16) 
+% [~, marker] = legend(LDA_handle,Odorants,'location','eastoutside','FontSize',16,'FontWeight','Bold');
+% set(findobj(marker,'-property','MarkerSize'),'MarkerSize',16)
+
+%% Save auto-rotating movie file 
+
+% set(gca,'nextplot','replacechildren');
+% v = VideoWriter('LDA.avi');
+% open(v);
+% for cycle_camera = 1:360
+%     hold on;
+%     for cycle_odors = 1:num_odors
+%         idx_start = num_bins*(cycle_odors-1);
+%         idx = idx_start+1:idx_start+num_bins;
+%         scatter_plot = scatter3(Y_LDA(idx,1),Y_LDA(idx,2),Y_LDA(idx,3),20,Colors(cycle_odors,:),'filled');
+%     end
+%     grid on;
+%     view(cycle_camera,45)
+%     frame = getframe(gcf);
+%     writeVideo(v,frame);
+% end
+% close(v);
+
 end

@@ -34,4 +34,9 @@ colormap([linspace(1,0.5,res); linspace(1,0,res); linspace(1,1,res)]')
 total_acc = mean(diag(data));
 title([Confusion_title '- Accuracy = ' num2str(round(total_acc,2)) '%'])
 colorbar('Ticks', [0, 100], 'TickLabels', {'0%', '100%'}, 'FontSize', 16);
+
+% xticklabels({'Healthy', 'Lung Cancer', 'Control'});
+% yticklabels({'Healthy', 'Lung Cancer', 'Control'});
+% xlabel('Target', 'FontSize', 18)
+% ylabel('Predicted', 'FontSize', 18)
 return

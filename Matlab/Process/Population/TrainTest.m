@@ -1,15 +1,4 @@
-function [bin_preds, trial_preds, train_stimuli, test_stimuli] = TrainTest(data,normtype,stimuli,train_ext)
-
-% train_stimuli = stimuli(contains(stimuli,train_ext));
-% test_stimuli = stimuli(~contains(stimuli,train_ext));
-
-% % With mineral oil
-% train_idx = [1 4 7 9];
-% test_idx = [2 5 8 10];
-
-% % Without mineral oil
-% train_idx = [1 4 7];
-% test_idx = [2 5 8];
+function [bin_preds, trial_preds, train_stimuli, test_stimuli] = TrainTest(data,normtype,stimuli)
 
 train_idx = [1 3 5];
 test_idx = [2 4 6];
@@ -18,10 +7,10 @@ train_stimuli = stimuli(train_idx,:);
 test_stimuli = stimuli(test_idx,:);
 
 %     Time bin average was used previously
-train_data = permute(mean(data(:,:,:,train_idx),[2 3]),[1 2 4 3]);
+% train_data = permute(mean(data(:,:,:,train_idx),[2 3]),[1 2 4 3]);
 
 %     No time bin average seems to give far better results
-% train_data = permute(mean(data(:,:,:,train_idx),3),[1 2 4 3]);
+train_data = permute(mean(data(:,:,:,train_idx),3),[1 2 4 3]);
 
 
 test_data = permute(data(:,:,:,test_idx),[1 2 4 3]);
